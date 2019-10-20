@@ -1,3 +1,4 @@
+from datetime import datetime
 from json import dumps as dictstr
 
 import requests
@@ -12,6 +13,16 @@ class KodiRpc:
     def __init__(self):
         self._channelList = {}
         self._playing = False
+        self._broadcastsList = []
+
+    @classmethod
+    def _liststr(cls, lst: list) -> str:
+        retstr = '['
+        for item in lst:
+            retstr = retstr + '"' + item + '", '
+        retstr = retstr[:-2]
+        retstr = retstr + ']'
+        return retstr
 
     @classmethod
     def _build_json(cls, method: str, request_id: str, params: dict = None) -> str:
@@ -24,6 +35,8 @@ class KodiRpc:
                     json = json + '"' + param + '": "' + value + '", '
                 elif isinstance(value, dict):
                     json = json + '"' + param + '": ' + dictstr(value) + ", "
+                elif isinstance(value, list):
+                    json = json + '"' + param + '": ' + cls._liststr(value) + ", "
                 else:
                     json = json + '"' + param + '": ' + str(value) + ', '
             json = json[:-2]
@@ -67,14 +80,48 @@ class KodiRpc:
             for ch in chs:
                 if ch['label'][-3:] == ' HD':
                     ch['label'] = ch['label'][:-3]
-                    if ch['label'] not in self._channelList:
-                        self._channelList[ch['label']] = ch['channelid']
+                    if ch['label'].upper() not in self._channelList:
+                        self._channelList[ch['label'].upper()] = ch['channelid']
             return self._channelList
 
     def _get_channel_id_by_name(self, name: str) -> int:
         if len(self._channelList) == 0:
             self._get_channel_list()
         return self._channelList.get(name)
+
+    def _get_channel_broadcasts(self, name: str) -> list:
+        channel_id = self._get_channel_id_by_name(name)
+        if channel_id is not None:
+            rpc_call = self._build_json("PVR.GetBroadcasts", "gbrd", {'channelid': channel_id,
+                                                                      'properties': ['starttime']})
+            response = requests.post(url=self.URL, data=rpc_call).json()
+            if response is None:
+                return []
+            else:
+                return response['result'].get('broadcasts')
+        else:
+            return []
+
+    def _get_next_broadcasts(self, name: str) -> list:
+        broadcasts = self._get_channel_broadcasts(name)
+        if broadcasts is not None:
+            return list(filter(
+                lambda x: datetime.strptime(x['starttime'], '%Y-%m-%d %H:%M:%S') >= datetime.now(),
+                broadcasts))
+        else:
+            return []
+
+    def _get_all_next_broadcasts(self) -> list:
+        if len(self._channelList) == 0:
+            self._get_channel_list()
+        if len(self._broadcastsList) == 0:
+            for ch in self._channelList:
+                self._broadcastsList.extend(self._get_next_broadcasts(ch))
+        else:
+            self._broadcastsList = list(filter(
+                lambda x: datetime.strptime(x['starttime'], '%Y-%m-%d %H:%M:%S') >= datetime.now(),
+                self._broadcastsList))
+        return self._broadcastsList
 
     def play_pause(self) -> bool:
         rpc_call = self._build_json("Input.ExecuteAction", "plps", {'action': 'playpause'})
@@ -105,3 +152,13 @@ class KodiRpc:
                 return True
             else:
                 return False
+
+    def get_next_time(self, name: str) -> datetime:
+        self._get_all_next_broadcasts()
+        for br in self._broadcastsList:
+            if br['label'].upper() == name.upper():
+                return datetime.strptime(br['starttime'], '%Y-%m-%d %H:%M:%S')
+
+
+if __name__ == '__main__':
+    print(KodiRpc().get_next_time('Saber y ganar'))
