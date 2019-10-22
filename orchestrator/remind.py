@@ -1,3 +1,4 @@
+import logging
 from threading import Thread
 
 from lib.communicator import MQTTDaemon, MQTTPublisher
@@ -18,4 +19,7 @@ class ReminderSenderParallelService(Thread):
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        self._publisher.publish(self._reminders.jsonify())
+        logging.debug("ReminderSenderParallelService: Recibido " + message)
+        jsonvar = self._reminders.jsonify()
+        logging.debug("ReminderSenderParallelService: Enviando " + jsonvar)
+        self._publisher.publish(jsonvar)

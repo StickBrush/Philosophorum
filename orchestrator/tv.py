@@ -1,3 +1,4 @@
+import logging
 from threading import Thread
 
 from lib.communicator import MQTTDaemon
@@ -15,4 +16,5 @@ class TVPauseParallelService(Thread):
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
+        logging.debug("TVPauseParallelService: Recibido " + message)
         self.kodi.play_pause()
