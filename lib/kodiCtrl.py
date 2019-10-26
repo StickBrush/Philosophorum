@@ -134,7 +134,7 @@ class KodiRpc:
         return list(self._channelList.keys())
 
     def play_channel(self, channel_name: str) -> bool:
-        channel_id = self._get_channel_id_by_name(channel_name)
+        channel_id = self._get_channel_id_by_name(channel_name.upper())
         if channel_id is None:
             return False
         else:
