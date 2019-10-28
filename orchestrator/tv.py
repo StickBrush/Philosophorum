@@ -1,4 +1,4 @@
-import logging
+from logging import debug as log, warning as logw
 from threading import Thread
 
 from lib.communicator import MQTTDaemon
@@ -12,12 +12,14 @@ class TVPauseParallelService(Thread):
     def __init__(self):
         Thread.__init__(self)
         self._kodi = KodiRpc()
+        log("TVPauseParallelService: Created")
 
     def run(self):
+        log("TVPauseParallelService: Running")
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        logging.debug("TVPauseParallelService: Recibido " + message)
+        log("TVPauseParallelService: Got message " + message)
         self._kodi.play_pause()
 
 
@@ -27,12 +29,14 @@ class TVChannelParellelService(Thread):
     def __init__(self):
         Thread.__init__(self)
         self._kodi = KodiRpc()
+        log("TVChannelParallelService: Created")
 
     def run(self):
+        log("TVChannelParallelService: Running")
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        logging.debug("TVChannelParallelService: Recibido " + message)
+        log("TVChannelParallelService: Got message " + message)
         self._kodi.play_channel(message)
 
 
@@ -44,14 +48,16 @@ class TVBroadcastRemindersParallelService(Thread):
         Thread.__init__(self)
         self._kodi = KodiRpc()
         self._reminders = ReminderData()
+        log("TVBroadcastRemindersParallelService: Created")
 
     def run(self) -> None:
+        log("TVBroadcastRemindersParallelService: Running")
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        logging.debug("TVBroadcastRemindersParallelService: Recibido " + message)
+        log("TVBroadcastRemindersParallelService: Got message " + message)
         broadcast = self._kodi.get_next_time(message)
         if broadcast is not None:
             self._reminders.add_reminder(broadcast.hour, broadcast.minute, broadcast.isoweekday(), self.TV_CONCEPT)
         else:
-            logging.warning("TVBroadcastRemindersParallelService: No encontrado " + message)
+            logw("TVBroadcastRemindersParallelService: " + message + " not found")

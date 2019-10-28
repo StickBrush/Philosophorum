@@ -1,3 +1,5 @@
+from logging import debug as log
+
 import paho.mqtt.client as mqtt
 
 
@@ -12,6 +14,7 @@ class MQTTDaemon:
         self.client.loop_forever()
 
     def __on_message(self, client, userdata, message):
+        log("MQTTDaemon: Message got")
         self.action(str(message.payload.decode("utf-8")))
 
 
@@ -24,3 +27,4 @@ class MQTTPublisher:
 
     def publish(self, message: str):
         self.client.publish(self.topic, message)
+        log("MQTTPublisher: Message published")
