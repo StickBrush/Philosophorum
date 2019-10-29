@@ -65,6 +65,16 @@ class ReminderData:
                 f(r_id)
             return r_id
 
+    def repeat_reminder(self, r_id: str) -> bool:
+        log("ReminderData: Repeating reminder " + r_id)
+        if r_id in self._db_reminders:
+            for f in self._add_callbacks.values():
+                f(r_id)
+            return True
+        else:
+            logw("ReminderData: Reminder not found")
+            return False
+
     def register_remove_callback(self, f: callable) -> str:
         log("ReminderData: Registering new remove callback")
         identifier = str(gen_uuid())

@@ -1,5 +1,7 @@
+from json import loads as dejson
 from logging import debug as log, warning as logw
 from threading import Thread, Timer
+from time import sleep
 
 from lib.communicator import MQTTDaemon, MQTTPublisher
 from lib.reminders import ReminderData
@@ -26,7 +28,7 @@ class ReminderSenderParallelService(Thread):
         self._publisher.publish(jsonvar)
 
 
-class ReminderTimersService():
+class ReminderTimersService:
     ANSWER_CHANNEL = "/dsh/damaso/reminders/notifications"
 
     def __init__(self):
@@ -56,3 +58,43 @@ class ReminderTimersService():
         rmndr = self._reminders.get_reminder(r_id)
         if rmndr is not None:
             self._publisher.publish(rmndr[2])
+        sleep(1.0)  # Wait for a second to make sure enough time has passed
+        self._reminders.repeat_reminder(r_id)
+
+
+class ReminderManagementParallelService(Thread):
+    LISTEN_CHANNEL = "/dsh/damaso/reminders/management"
+    ANSWER_CHANNEL = "/dsh/damaso/reminders/management/ids"
+
+    def __init__(self):
+        Thread.__init__(self)
+        self._reminders = ReminderData()
+        self._publisher = MQTTPublisher(self.ANSWER_CHANNEL)
+        log("ReminderManagementParallelService: Created")
+
+    def run(self) -> None:
+        MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
+
+    def interact(self, message):
+        log("ReminderManagementParallelService: Got message")
+        try:
+            json = dejson(message)
+            log("ReminderManagementParallelService: Unmarshalled message")
+            action = json['action']
+            if action == 'ADD':
+                log("ReminderManagementParallelService: Adding reminder...")
+                hour = int(json['hour'])
+                minute = int(json['minute'])
+                weekday = int(json['weekday'])
+                concept = int(json['concept'])
+                log("ReminderManagementParallelService: Added " + str(concept) + " reminder @"
+                    + str(hour) + ":" + str(minute) + " on days " + str(weekday))
+                r_id = self._reminders.add_reminder(hour, minute, weekday, concept)
+                self._publisher.publish(r_id)
+            else:
+                r_id = json['id']
+                log("ReminderManagementParallelService: Removing reminder " + r_id)
+                self._reminders.remove_reminder(r_id)
+
+        except Exception:
+            logw("ReminderManagementParallelService: Unreadable message: " + message)

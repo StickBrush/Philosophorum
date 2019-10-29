@@ -23,6 +23,9 @@ if __name__ == '__main__':
 
     orch_rem_timers_service = ReminderTimersService()
 
+    orch_rem_mngmnt_service = ReminderManagementParallelService()
+    orch_rem_mngmnt_service.start()
+
     orch_tv_pause_service = TVPauseParallelService()
     orch_tv_pause_service.start()
 
