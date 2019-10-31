@@ -3,11 +3,13 @@ from json import dumps as dictstr
 from logging import debug as log, warning as logw
 
 import requests
+from singleton_decorator import singleton
 
 
 # JSON RPC API reference: https://kodi.wiki/view/JSON-RPC_API/v9
 
 
+@singleton
 class KodiRpc:
     URL: str = "http://localhost:8080/jsonrpc"
     CACHE_VALID_TIME: int = 1200
@@ -15,6 +17,7 @@ class KodiRpc:
     def __init__(self):
         self._channelList = {}
         self._playing = False
+        self._paused = False
         self._broadcastsList = []
         log("KodiRpc: Created")
 
@@ -143,6 +146,7 @@ class KodiRpc:
         log("KodiRpc: Play/pause request")
         rpc_call = self._build_json("Input.ExecuteAction", "plps", {'action': 'playpause'})
         response = requests.post(url=self.URL, data=rpc_call).json()
+        self._paused = not self._paused
         return response.get('result') == 'OK'
 
     def get_channel_names(self) -> list:
@@ -159,6 +163,7 @@ class KodiRpc:
             return False
         else:
             self._playing = True
+            self._paused = False
             return self._play_channel("playch", channel_id)
 
     def stop(self) -> bool:
@@ -181,3 +186,11 @@ class KodiRpc:
         for br in self._broadcastsList:
             if br['label'].upper() == name.upper():
                 return datetime.strptime(br['starttime'], '%Y-%m-%d %H:%M:%S')
+
+    def is_playing(self):
+        log("KodiRpc: Getting playing status")
+        return self._playing
+
+    def is_paused(self):
+        log("KodiRpc: Getting pause status")
+        return self._paused

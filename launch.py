@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=arguments.DEBUG)
 
-    orch_proac_awaken_service = ProactiveAwakenService()
+    orch_proac_awaken_service = ProactiveAwakenParallelService()
     orch_proac_awaken_service.start()
 
     orch_rem_server_service = ReminderSenderParallelService()
@@ -29,8 +29,14 @@ if __name__ == '__main__':
     orch_tv_pause_service = TVPauseParallelService()
     orch_tv_pause_service.start()
 
+    orch_tv_stop_service = TVStopParallelService()
+    orch_tv_stop_service.start()
+
     orch_tv_channel_service = TVChannelParellelService()
     orch_tv_channel_service.start()
 
     orch_tv_broadcast_service = TVBroadcastRemindersParallelService()
     orch_tv_broadcast_service.start()
+
+    orch_proac_mgmnt_service = ProactiveManagementParallelService()
+    orch_proac_mgmnt_service.start()

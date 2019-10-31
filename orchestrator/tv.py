@@ -23,6 +23,23 @@ class TVPauseParallelService(Thread):
         self._kodi.play_pause()
 
 
+class TVStopParallelService(Thread):
+    LISTEN_CHANNEL = "/dsh/damaso/stop"
+
+    def __init__(self):
+        Thread.__init__(self)
+        self._kodi = KodiRpc()
+        log("TVStopParallelService: Created")
+
+    def run(self):
+        log("TVStopParallelService: Running")
+        MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
+
+    def interact(self, message):
+        log("TVStopParallelService: Got message " + message)
+        self._kodi.stop()
+
+
 class TVChannelParellelService(Thread):
     LISTEN_CHANNEL = "/dsh/damaso/channel"
 
