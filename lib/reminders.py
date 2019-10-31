@@ -14,8 +14,9 @@ from singleton_decorator import singleton
 class ReminderData:
 
     def __init__(self):
-        self.REMINDER_SAVEFILE = 'reminders.sav'
-        self.REMINDER_AUTOSAVE_INTERVAL_SECONDS = 600
+        self._REMINDER_SAVEFILE = 'reminders.sav'
+        self._REMINDER_AUTOSAVE_INTERVAL_SECONDS = 600
+        self._NON_REPEATING_REMINDER_CONCEPTS = [7]
         self._reminders = []
         self._db_reminders = {}
         self._add_callbacks = {}
@@ -26,7 +27,7 @@ class ReminderData:
 
     def _autosave(self):
         log("ReminderData: Re-enabling autosave")
-        self._timer = Timer(self.REMINDER_AUTOSAVE_INTERVAL_SECONDS, self.save)
+        self._timer = Timer(self._REMINDER_AUTOSAVE_INTERVAL_SECONDS, self.save)
         self._timer.start()
 
     def _sort(self):
@@ -68,6 +69,9 @@ class ReminderData:
     def repeat_reminder(self, r_id: str) -> bool:
         log("ReminderData: Repeating reminder " + r_id)
         if r_id in self._db_reminders:
+            if self._db_reminders[r_id][2] in self._NON_REPEATING_REMINDER_CONCEPTS:
+                log("ReminderData: Non-repeating reminder, ignoring...")
+                return True
             for f in self._add_callbacks.values():
                 f(r_id)
             return True
@@ -119,15 +123,15 @@ class ReminderData:
 
     def save(self):
         log("ReminderData: Saving...")
-        with open(self.REMINDER_SAVEFILE, 'wb') as savefile:
+        with open(self._REMINDER_SAVEFILE, 'wb') as savefile:
             pickle.dump(self._db_reminders, savefile)
         self._autosave()
 
     def load(self):
         log("ReminderData: Loading data")
-        if exists(self.REMINDER_SAVEFILE):
+        if exists(self._REMINDER_SAVEFILE):
             log("ReminderData: Data found, loading...")
-            with open(self.REMINDER_SAVEFILE, 'rb') as savefile:
+            with open(self._REMINDER_SAVEFILE, 'rb') as savefile:
                 saved = pickle.load(savefile)
                 self._db_reminders = saved
                 self._reminders = list(self._db_reminders.values())
