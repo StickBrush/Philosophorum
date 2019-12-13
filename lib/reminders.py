@@ -64,6 +64,7 @@ class ReminderData:
             log("ReminderData: Executing add callbacks")
             for f in self._add_callbacks.values():
                 f(r_id)
+            log(r_id)
             return r_id
 
     def repeat_reminder(self, r_id: str) -> bool:
@@ -124,6 +125,7 @@ class ReminderData:
     def save(self):
         log("ReminderData: Saving...")
         try:
+            print(self._db_reminders)
             with open(self._REMINDER_SAVEFILE, 'wb') as savefile:
                 pickle.dump(self._db_reminders, savefile)
         except:
