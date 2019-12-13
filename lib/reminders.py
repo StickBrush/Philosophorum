@@ -186,7 +186,7 @@ class ReminderData:
         return json.dumps(json_dict)
 
     def jsonify_id(self) -> str:
-        log("ReminderData: JSONifying")
+        log("IDReminderData: JSONifying")
         rec_list = []
         for reminder in self._reminders:
             ms = self._get_ms_time(reminder[0], reminder[1])

@@ -6,6 +6,7 @@ from time import sleep
 from lib.communicator import MQTTDaemon, MQTTPublisher
 from lib.reminders import ReminderData
 
+import traceback
 
 class ReminderSenderParallelService(Thread):
     LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
@@ -42,11 +43,16 @@ class ReminderIDSenderParallelService(Thread):
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        log("ReminderIDSenderParallelService: Got message " + message)
-        jsonvar = self._reminders.jsonify_id()
-        log("ReminderIDSenderParallelService: Sending " + jsonvar)
-        self._publisher.publish(jsonvar)
+        try:
+            log("ReminderIDSenderParallelService: Got message " + message)
+            jsonvar = self._reminders.jsonify_id()
+            log("ReminderIDSenderParallelService: Sending " + jsonvar)
+            self._publisher.publish(jsonvar)
+        except:
+            traceback.print_exc()
+            pass
 
+    
 class ReminderTimersService:
     ANSWER_CHANNEL = "/dsh/damaso/reminders/notifications"
 
