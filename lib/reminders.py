@@ -59,12 +59,12 @@ class ReminderData:
             reminder = (r_time, weekday, concept, r_id)
             log("ReminderData: Created reminder " + r_id)
             self._reminders.append(reminder)
+            log(self._reminders.append(reminder))
             self._db_reminders[r_id] = reminder
             self._sort()
             log("ReminderData: Executing add callbacks")
             for f in self._add_callbacks.values():
                 f(r_id)
-            log(r_id)
             return r_id
 
     def repeat_reminder(self, r_id: str) -> bool:
