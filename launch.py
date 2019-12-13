@@ -18,8 +18,8 @@ if __name__ == '__main__':
     orch_proac_awaken_service = ProactiveAwakenParallelService()
     orch_proac_awaken_service.start()
 
-    orch_rem_server_service = ReminderSenderParallelService()
-    orch_rem_server_service.start()
+#    orch_rem_server_service = ReminderSenderParallelService()
+#    orch_rem_server_service.start()
 
     orch_rem_server_service_id = ReminderIDSenderParallelService()
     orch_rem_server_service_id.start()

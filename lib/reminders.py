@@ -15,7 +15,7 @@ class ReminderData:
 
     def __init__(self):
         self._REMINDER_SAVEFILE = 'reminders.sav'
-        self._REMINDER_AUTOSAVE_INTERVAL_SECONDS = 60
+        self._REMINDER_AUTOSAVE_INTERVAL_SECONDS = 600
         self._NON_REPEATING_REMINDER_CONCEPTS = [7]
         self._reminders = []
         self._db_reminders = {}

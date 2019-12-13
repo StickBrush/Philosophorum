@@ -117,7 +117,7 @@ class ReminderManagementParallelService(Thread):
                     + str(hour) + ":" + str(minute) + " on days " + str(weekday))
                 r_id = self._reminders.add_reminder(hour, minute, weekday, concept)
                 self._publisher.publish(r_id)
-                ReminderSenderParallelService().interact("")
+                #ReminderSenderParallelService().interact("")
             else:
                 r_id = json['id']
                 log("ReminderManagementParallelService: Removing reminder " + r_id)
