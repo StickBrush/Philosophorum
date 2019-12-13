@@ -189,16 +189,13 @@ class ReminderData:
             return None
 
     def jsonify_id(self) -> str:
-        try:
-            log("IDReminderData: JSONifying")
-            rec_list = []
-            for reminder in self._reminders:
-                #ms = self._get_ms_time(reminder[0], reminder[1])
-                concept = reminder[2]
-                r_dict = {"tiempo": reminder[0], "dia": reminder[1],  "sonido": concept, "id": reminder[3] }
-                rec_list.append(r_dict)
-            json_dict = {'recordatorios': rec_list}
-            return json.dumps(json_dict)
-        except:
-            import traceback
-            traceback.print_exc
+        log("IDReminderData: JSONifying")
+        rec_list = []
+        for reminder in self._reminders:
+             #ms = self._get_ms_time(reminder[0], reminder[1])
+            concept = reminder[2]
+            r_dict = {"tiempo": reminder[0], "dia": reminder[1],  "sonido": concept, "id": reminder[3] }
+            rec_list.append(r_dict)
+        json_dict = {'recordatorios': rec_list}
+        return json.dumps(json_dict)
+       
