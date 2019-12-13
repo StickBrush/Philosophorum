@@ -20,7 +20,7 @@ class ReminderSenderParallelService(Thread):
         log("ReminderSenderParallelService: Created")
 
     def run(self):
-        MQTTDaemon(self.interact, "/")
+        MQTTDaemon(self.interact, "/a")
 
     def interact(self, message):
         log("ReminderSenderParallelService: Got message " + message)
