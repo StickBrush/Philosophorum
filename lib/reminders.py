@@ -182,8 +182,11 @@ class ReminderData:
             concept = reminder[2]
             r_dict = {'tiempo': ms, 'sonido': concept}
             rec_list.append(r_dict)
-        json_dict = {'recordatorios': rec_list}
-        return json.dumps(json_dict)
+        if len(rec_list) > 0:
+            json_dict = {'recordatorios': rec_list}
+            return json.dumps(json_dict)
+        else:
+            return None
 
     def jsonify_id(self) -> str:
         log("IDReminderData: JSONifying")

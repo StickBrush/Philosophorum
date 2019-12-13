@@ -25,8 +25,9 @@ class ReminderSenderParallelService(Thread):
     def interact(self, message):
         log("ReminderSenderParallelService: Got message " + message)
         jsonvar = self._reminders.jsonify()
-        log("ReminderSenderParallelService: Sending " + jsonvar)
-        self._publisher.publish(jsonvar)
+        if jsonvar is not None:
+            log("ReminderSenderParallelService: Sending " + jsonvar)
+            self._publisher.publish(jsonvar)
 
 class ReminderIDSenderParallelService(Thread):
     LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
