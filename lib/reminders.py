@@ -59,7 +59,7 @@ class ReminderData:
             reminder = (r_time, weekday, concept, r_id)
             log("ReminderData: Created reminder " + r_id)
             self._reminders.append(reminder)
-            log(self._reminders.append(reminder))
+            log(self._reminders)
             self._db_reminders[r_id] = reminder
             self._sort()
             log("ReminderData: Executing add callbacks")
