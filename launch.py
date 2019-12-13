@@ -21,6 +21,9 @@ if __name__ == '__main__':
     orch_rem_server_service = ReminderSenderParallelService()
     orch_rem_server_service.start()
 
+    orch_rem_server_service_id = ReminderIDSenderParallelService()
+    orch_rem_server_service_id.start()
+
     orch_rem_timers_service = ReminderTimersService()
 
     orch_rem_mngmnt_service = ReminderManagementParallelService()

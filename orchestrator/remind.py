@@ -27,6 +27,25 @@ class ReminderSenderParallelService(Thread):
         log("ReminderSenderParallelService: Sending " + jsonvar)
         self._publisher.publish(jsonvar)
 
+class ReminderIDSenderParallelService(Thread):
+    LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
+    ANSWER_CHANNEL = "/dsh/damaso/reminders/IDresponses"
+
+    def __init__(self):
+        Thread.__init__(self)
+        self._reminders = ReminderData()
+        self._reminders.load()
+        self._publisher = MQTTPublisher(self.ANSWER_CHANNEL)
+        log("ReminderIDSenderParallelService: Created")
+
+    def run(self):
+        MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
+
+    def interact(self, message):
+        log("ReminderIDSenderParallelService: Got message " + message)
+        jsonvar = self._reminders.jsonify_id()
+        log("ReminderIDSenderParallelService: Sending " + jsonvar)
+        self._publisher.publish(jsonvar)
 
 class ReminderTimersService:
     ANSWER_CHANNEL = "/dsh/damaso/reminders/notifications"
