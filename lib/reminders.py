@@ -201,7 +201,7 @@ class ReminderData:
              #ms = self._get_ms_time(reminder[0], reminder[1])
             concept = reminder[2]
             #pasar time a ms
-            r_dict = {"tiempo": (reminder[0].hour*1000*60*60 + reminder[0].minute*60*1000 + reminder[0].second*1000) , "dia": reminder[1],  "sonido": concept, "id": reminder[3] }
+            r_dict = {"tiempo": (reminder[0].hour*1000*60*60 + reminder[0].minute*60*1000) , "dia": reminder[1],  "sonido": concept, "id": reminder[3] }
             rec_list.append(r_dict)
         json_dict = {'recordatorios': rec_list}
         return json.dumps(json_dict)
