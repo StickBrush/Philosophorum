@@ -1,7 +1,7 @@
 from logging import debug as log
 
 import paho.mqtt.client as mqtt
-
+import paho.mqtt.publish as publish
 
 class MQTTDaemon:
 
@@ -21,10 +21,8 @@ class MQTTDaemon:
 class MQTTPublisher:
 
     def __init__(self, topic: str):
-        self.client = mqtt.Client()
-        self.client.connect("localhost")
         self.topic = topic
 
     def publish(self, message: str):
-        self.client.publish(self.topic, message)
+        publish.single(self.topic, payload=message)
         log("MQTTPublisher: Message published")
