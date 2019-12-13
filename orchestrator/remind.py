@@ -9,7 +9,7 @@ from lib.reminders import ReminderData
 import traceback
 
 class ReminderSenderParallelService(Thread):
-    LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
+#    LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
     ANSWER_CHANNEL = "/dsh/damaso/reminders/responses"
 
     def __init__(self):
@@ -20,7 +20,7 @@ class ReminderSenderParallelService(Thread):
         log("ReminderSenderParallelService: Created")
 
     def run(self):
-        MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
+        MQTTDaemon(self.interact, "/")
 
     def interact(self, message):
         log("ReminderSenderParallelService: Got message " + message)
@@ -117,6 +117,7 @@ class ReminderManagementParallelService(Thread):
                     + str(hour) + ":" + str(minute) + " on days " + str(weekday))
                 r_id = self._reminders.add_reminder(hour, minute, weekday, concept)
                 self._publisher.publish(r_id)
+                ReminderSenderParallelService().interact("")
             else:
                 r_id = json['id']
                 log("ReminderManagementParallelService: Removing reminder " + r_id)
