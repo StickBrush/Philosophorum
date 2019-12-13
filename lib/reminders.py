@@ -126,6 +126,8 @@ class ReminderData:
         log("ReminderData: Saving...")
         try:
             print(self._db_reminders)
+            print(self._reminders)
+
             with open(self._REMINDER_SAVEFILE, 'wb') as savefile:
                 pickle.dump(self._db_reminders, savefile)
         except:
