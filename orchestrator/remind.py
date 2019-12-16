@@ -6,28 +6,54 @@ from time import sleep
 from lib.communicator import MQTTDaemon, MQTTPublisher
 from lib.reminders import ReminderData
 
+import traceback
 
-class ReminderSenderParallelService(Thread):
+#class ReminderSenderParallelService(Thread):
+#    LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
+#    ANSWER_CHANNEL = "/dsh/damaso/reminders/responses"
+
+#    def __init__(self):
+#        Thread.__init__(self)
+        #self._reminders = ReminderData()
+        #self._reminders.load()
+#        self._publisher = MQTTPublisher(self.ANSWER_CHANNEL)
+#        log("ReminderSenderParallelService: Created")
+
+#    def run(self):
+#        MQTTDaemon(self.interact, "/a")
+
+#    def interact(self, message):
+#        log("ReminderSenderParallelService: Got message " + message)
+#        jsonvar = self._reminders.jsonify()
+#        if jsonvar is not None:
+#            log("ReminderSenderParallelService: Sending " + jsonvar)
+#            self._publisher.publish(jsonvar)
+
+class ReminderIDSenderParallelService(Thread):
     LISTEN_CHANNEL = "/dsh/damaso/reminders/requests"
-    ANSWER_CHANNEL = "/dsh/damaso/reminders/responses"
+    ANSWER_CHANNEL = "/dsh/damaso/reminders/IDresponses"
 
     def __init__(self):
         Thread.__init__(self)
         self._reminders = ReminderData()
         self._reminders.load()
         self._publisher = MQTTPublisher(self.ANSWER_CHANNEL)
-        log("ReminderSenderParallelService: Created")
+        log("ReminderIDSenderParallelService: Created")
 
     def run(self):
         MQTTDaemon(self.interact, self.LISTEN_CHANNEL)
 
     def interact(self, message):
-        log("ReminderSenderParallelService: Got message " + message)
-        jsonvar = self._reminders.jsonify()
-        log("ReminderSenderParallelService: Sending " + jsonvar)
-        self._publisher.publish(jsonvar)
+        try:
+            log("ReminderIDSenderParallelService: Got message " + message)
+            jsonvar = self._reminders.jsonify_id()
+            log("ReminderIDSenderParallelService: Sending " + jsonvar)
+            self._publisher.publish(jsonvar)
+        except:
+            traceback.print_exc()
+            pass
 
-
+    
 class ReminderTimersService:
     ANSWER_CHANNEL = "/dsh/damaso/reminders/notifications"
 
@@ -91,6 +117,7 @@ class ReminderManagementParallelService(Thread):
                     + str(hour) + ":" + str(minute) + " on days " + str(weekday))
                 r_id = self._reminders.add_reminder(hour, minute, weekday, concept)
                 self._publisher.publish(r_id)
+                #ReminderSenderParallelService().interact("")
             else:
                 r_id = json['id']
                 log("ReminderManagementParallelService: Removing reminder " + r_id)

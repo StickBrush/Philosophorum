@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from json import dumps as dictstr
 from logging import debug as log, warning as logw
 
@@ -123,7 +123,7 @@ class KodiRpc:
         broadcasts = self._get_channel_broadcasts(name)
         if broadcasts is not None:
             return list(filter(
-                lambda x: datetime.strptime(x['starttime'], '%Y-%m-%d %H:%M:%S') >= datetime.now(),
+                lambda x: datetime.strptime(x['starttime'], '%Y-%m-%d %H:%M:%S') >= datetime.now() - timedelta(days=1),
                 broadcasts))
         else:
             return []
@@ -185,7 +185,7 @@ class KodiRpc:
         self._get_all_next_broadcasts()
         for br in self._broadcastsList:
             if br['label'].upper() == name.upper():
-                return datetime.strptime(br['starttime'], '%Y-%m-%d %H:%M:%S')
+                return datetime.strptime(br['starttime'], '%Y-%m-%d %H:%M:%S')+timedelta(days=1)
 
     def is_playing(self):
         log("KodiRpc: Getting playing status")
@@ -194,3 +194,6 @@ class KodiRpc:
     def is_paused(self):
         log("KodiRpc: Getting pause status")
         return self._paused
+
+if __name__ == '__main__':
+    print(KodiRpc().get_next_time('Cuarto Milenio'))

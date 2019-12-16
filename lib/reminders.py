@@ -59,6 +59,7 @@ class ReminderData:
             reminder = (r_time, weekday, concept, r_id)
             log("ReminderData: Created reminder " + r_id)
             self._reminders.append(reminder)
+            log(self._reminders)
             self._db_reminders[r_id] = reminder
             self._sort()
             log("ReminderData: Executing add callbacks")
@@ -123,8 +124,15 @@ class ReminderData:
 
     def save(self):
         log("ReminderData: Saving...")
-        with open(self._REMINDER_SAVEFILE, 'wb') as savefile:
-            pickle.dump(self._db_reminders, savefile)
+        try:
+            print(self._db_reminders)
+            print(self._reminders)
+
+            with open(self._REMINDER_SAVEFILE, 'wb') as savefile:
+                pickle.dump(self._db_reminders, savefile)
+        except:
+            import traceback
+            traceback.print_exc()
         self._autosave()
 
     def load(self):
@@ -182,5 +190,21 @@ class ReminderData:
             concept = reminder[2]
             r_dict = {'tiempo': ms, 'sonido': concept}
             rec_list.append(r_dict)
+        if len(rec_list) > 0:
+            json_dict = {'recordatorios': rec_list}
+            return json.dumps(json_dict)
+        else:
+            return None
+
+    def jsonify_id(self) -> str:
+        log("IDReminderData: JSONifying")
+        rec_list = []
+        for reminder in self._reminders:
+             #ms = self._get_ms_time(reminder[0], reminder[1])
+            concept = reminder[2]
+            #pasar time a ms
+            r_dict = {"tiempo": (reminder[0].hour*1000*60*60 + reminder[0].minute*60*1000) , "dia": reminder[1],  "sonido": concept, "id": reminder[3] }
+            rec_list.append(r_dict)
         json_dict = {'recordatorios': rec_list}
         return json.dumps(json_dict)
+       
