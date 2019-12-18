@@ -68,7 +68,7 @@ class ReminderTimersService:
     def _start_timer(self, r_id: str):
         log("ReminderTimersService: Starting timer for " + r_id)
         secs = self._reminders.get_seconds_to(r_id)
-        tmr = Timer(secs, self.notify)
+        tmr = Timer(secs, self.notify, [r_id])
         self._timers[r_id] = tmr
         self._timers[r_id].start()
 
